@@ -62,27 +62,24 @@ n_el = size(Tn,1);            % Total number of elements
 n_nod = size(Tn,2);           % Number of nodes for each element
 n_el_dof = n_i*n_nod;         % Number of DOFs for each element 
 
-% Computation of the DOFs connectivities
-Td = connectDOFs(n_el,n_nod,n_i,Tn);
 
 % Computation of element stiffness matrices
 [Kel,leb] = computeKelBar(n_d,n_el,x,Tn,mat,Tmat);
 
 % Global matrix assembly
-KG = assemblyKG(n_el,n_el_dof,n_dof,Td,Kel);
+s = GlobalStiffnessMatrixComputer(Kel,Tn,n,n_dof);
+Td=s.connectDOFS();
+KG = s.assemblyKG(Td);
 
 % Global force vector assembly
 Fext = computeF(n_i,n_dof,Fdata);
 
-% Thermal force vector assembly
-%F0 = computeThermalEffect(n_d, n_el, n_i, x, Tn, Td, Tmat, mat, n_dof, deltaT);
-
 % Apply conditions 
 [vL,vR,uR] = applyCond(n_i,n_dof,fixNod);
 
-%
+
 % System resolution
-[u,R,KLL,KRR,KRL,KLR,FL,FR] = solveSys_t(vL,vR,uR,KG,Fext);
+[u,R] = solveSys_t(vL,vR,uR,KG,Fext);
 
 % Compute strain and stresses
 [eps,sig] = computeStrainStressBar_t(n_d,n_nod,n_el,u,Td,x,Tn,mat,Tmat);

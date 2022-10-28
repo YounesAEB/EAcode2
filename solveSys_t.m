@@ -1,4 +1,4 @@
-function [u,R,KLL,KRR,KRL,KLR,FL,FR] = solveSys_t(vL,vR,uR,KG,Fext)
+function [u,R] = solveSys_t(vL,vR,uR,KG,Fext)
 %--------------------------------------------------------------------------
 % The function takes as inputs:
 %   - vL      Free degree of freedom vector
@@ -61,7 +61,15 @@ for i = 1:numel(vR)
 end 
 
 %Obtenció de les variables a calcular
-uL = KLL\(FL-KLR*uR);
+cParams.type='iterative';
+cParams.A=KLL;
+cParams.b=FL-KLR*uR;
+
+s=Solver.create(cParams);
+uL=s.resolution();
+
+
+%uL = KLL\(FL-KLR*uR);
 R = KRR*uR+KRL*uL-FR;
 
 %Obtenció del vector u amb tots els desplaçaments
