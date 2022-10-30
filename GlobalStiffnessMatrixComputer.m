@@ -12,8 +12,6 @@ classdef GlobalStiffnessMatrixComputer
     end
 
     methods
-        %Primer el constructor, tot i que no faci res, cal que
-        %s'inicialitzi
         function obj = GlobalStiffnessMatrixComputer(Kelem,Tnod,n,n_dof)
             obj.Kelem=Kelem;
             obj.Tnod=Tnod;
@@ -47,9 +45,10 @@ classdef GlobalStiffnessMatrixComputer
                         KG(I,J)=KG(I,J)+obj.Kelem(i,j,e);
                     end
                 end
-    
             end
         end
+
+        
 
     end
 end

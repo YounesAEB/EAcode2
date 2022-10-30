@@ -2,8 +2,8 @@ classdef directSolver < Solver
 
     methods (Access = public)
         function obj=directSolver(cParams)
-            obj.A=cParams.A;
-            obj.b=cParams.b;
+            obj.A=cParams.KLL;
+            obj.b=cParams.FL-cParams.KLR*cParams.uR;
         end
 
         function x = resolution(obj)
