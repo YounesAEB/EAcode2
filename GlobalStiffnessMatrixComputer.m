@@ -1,54 +1,86 @@
 classdef GlobalStiffnessMatrixComputer
 
-    properties
-        Kelem
-        Tnod
-        numNodesTotal
-        numDOFsTotal
-        numElements
-        numNodesElement
-        numDimensions %=number of DOFs per each node
-        numDOFsElement
+    properties (Access=public)
+        kElem
+        kGlob
+        elementsLong
+        DOFsConnectivities
     end
 
-    methods
-        function obj = GlobalStiffnessMatrixComputer(Kelem,Tnod,n,n_dof)
-            obj.Kelem=Kelem;
-            obj.Tnod=Tnod;
-            obj.numNodesTotal=n;
-            obj.numDOFsTotal=n_dof;
-            obj.numElements=size(Tnod,1);
-            obj.numNodesElement=size(Tnod,2);
-            obj.numDimensions=n_dof/n;
-            obj.numDOFsElement=n_dof/n*size(Tnod,2);
-        end
-        
-        function Td=connectDOFS(obj)
-            Td = zeros(obj.numElements, obj.numDOFsElement);
-            for i=1:obj.numElements
-                Td(i,1)=obj.Tnod(i,1)*obj.numDimensions-2;
-                Td(i,2)=obj.Tnod(i,1)*obj.numDimensions-1;
-                Td(i,3)=obj.Tnod(i,1)*obj.numDimensions;
-                Td(i,4)=obj.Tnod(i,2)*obj.numDimensions-2;
-                Td(i,5)=obj.Tnod(i,2)*obj.numDimensions-1;
-                Td(i,6)=obj.Tnod(i,2)*obj.numDimensions;
-            end
+    properties (Access=private)
+        data
+        dimensions
+    end
+
+    methods (Access=public)
+        function obj = GlobalStiffnessMatrixComputer(data,dimensions)  
+            obj.dimensions=dimensions;
+            obj.data=data;
         end
 
-        function KG = assemblyKG(obj,Td)
-            KG=zeros(obj.numDOFsTotal);
-            for e=1:obj.numElements
-                for i=1:obj.numDOFsElement
+        function obj = compute(obj)
+            obj=obj.DOFsConnectivityComputer();
+            obj=obj.computekElem();
+            obj=obj.assemblyKG();
+        end
+    end
+
+    methods (Access=private)
+        function obj=DOFsConnectivityComputer(obj)
+            Td = zeros(obj.dimensions.numElements, obj.dimensions.numDOFsElement);
+            Tnod=obj.data.nodalConnectivities;
+            for i=1:obj.dimensions.numElements
+                Td(i,1)=Tnod(i,1)*obj.dimensions.numDimensions-2;
+                Td(i,2)=Tnod(i,1)*obj.dimensions.numDimensions-1;
+                Td(i,3)=Tnod(i,1)*obj.dimensions.numDimensions;
+                Td(i,4)=Tnod(i,2)*obj.dimensions.numDimensions-2;
+                Td(i,5)=Tnod(i,2)*obj.dimensions.numDimensions-1;
+                Td(i,6)=Tnod(i,2)*obj.dimensions.numDimensions;
+            end
+            obj.DOFsConnectivities=Td;
+        end
+
+        function obj=computekElem(obj)
+            n_el=obj.dimensions.numElements;
+            n_el_dof=obj.dimensions.numDOFsElement;
+            x=obj.data.nodalCoordinates;
+            Tnod=obj.data.nodalConnectivities;
+            mat=obj.data.materialProperties;
+            Tmat=obj.data.materialConnectivity;
+
+            Kelem=zeros(n_el_dof, n_el_dof, n_el);
+            obj.elementsLong = zeros(n_el,1);
+            for e=1:n_el
+                x1e=x(Tnod(e,1),1);
+                y1e=x(Tnod(e,1),2);
+                z1e=x(Tnod(e,1),3);
+                x2e=x(Tnod(e,2),1);
+                y2e=x(Tnod(e,2),2);
+                z2e=x(Tnod(e,2),3);
+                le=sqrt((x2e-x1e)^2+(y2e-y1e)^2+(z2e-z1e)^2);
+                
+                Re = 1/le*[x2e-x1e y2e-y1e z2e-z1e 0 0 0;
+                           0 0 0 x2e-x1e y2e-y1e z2e-z1e];
+                
+                Kelprima =(mat(Tmat(e),1)*mat(Tmat(e),2))/(le)*[1 -1; -1 1];
+                Kelem(:,:,e) = Re.'*Kelprima*Re;
+                obj.elementsLong(e,1)= le;
+            end
+            obj.kElem=Kelem;
+        end
+
+        function obj = assemblyKG(obj)
+            obj.kGlob=zeros(obj.dimensions.numDOFsTotal);
+            Td=obj.DOFsConnectivities;
+            for e=1:obj.dimensions.numElements
+                for i=1:obj.dimensions.numDOFsElement
                     I=Td(e,i);
-                    for j=1:obj.numDOFsElement
+                    for j=1:obj.dimensions.numDOFsElement
                         J=Td(e,j);
-                        KG(I,J)=KG(I,J)+obj.Kelem(i,j,e);
+                        obj.kGlob(I,J)=obj.kGlob(I,J)+obj.kElem(i,j,e);
                     end
                 end
             end
         end
-
-        
-
     end
 end

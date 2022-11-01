@@ -1,16 +1,29 @@
 classdef GlobalForceVectorAssembly
 
-    methods
-        function obj = GlobalForceVectorAssembly()
+    properties (Access=public)
+        Fext
+    end
+
+    properties (Access=private)
+        forcesData
+        numDOFsTotal
+        numDimensions
+    end
+
+    methods (Access=public)
+        function obj = GlobalForceVectorAssembly(data,dimensions)
+            obj.forcesData=data.forcesData;
+            obj.numDOFsTotal=dimensions.numDOFsTotal;
+            obj.numDimensions=dimensions.numDimensions;
         end
 
-        function Fext = computeF(obj,n_i,n_dof,Fdata)
-            Fext=zeros(n_dof,1);
-            for k=1:size(Fdata,1)
-                if Fdata(k,2)==1
-                Fext(Fdata(k,1)*n_i-1)=Fdata(k,3);
+        function obj=computeF(obj)
+            obj.Fext=zeros(obj.numDOFsTotal,1);
+            for k=1:size(obj.forcesData,1)
+                if obj.forcesData(k,2)==1
+                obj.Fext(obj.forcesData(k,1)*obj.numDimensions-1)=obj.forcesData(k,3);
                 else 
-                Fext(Fdata(k,1)*n_i)=Fdata(k,3);
+                obj.Fext(obj.forcesData(k,1)*obj.numDimensions)=obj.forcesData(k,3);
                 end
             end
         end

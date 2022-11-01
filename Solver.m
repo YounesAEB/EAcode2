@@ -1,43 +1,82 @@
 classdef Solver < handle
-    
-    properties
+
+    %Solving Ax=b equations
+
+    properties 
         A
         b
+        freeDOFs
+        fixedDOFs
+        fixedDispl
+        freeDispl
+        KRR
+        KRL
+        KLL
+        KLR
+        FL
+        FR
     end
 
-    methods (Access=public, Static)
-        function obj = create(cParams) %esto NO se puede hacer como un constructor normal, sino como una función.
-          switch cParams.type
-              case 'direct'
-                  obj = directSolver(cParams);
-              case 'iterative'
-                  obj = iterativeSolver(cParams);
-          end
+    properties (Access=private)
+        fixNod
+        Fext
+        solverType
+        kGlob
+        dimensions
+    end
+
+    methods (Access=public)
+        function obj=Solver(cParams,data,dimensions,k,f)
+            obj.solverType=cParams.type;
+            obj.fixNod=data.fixNod;
+            obj.dimensions=dimensions;
+            obj.kGlob=k.kGlob;
+            obj.Fext=f.Fext;
         end
 
-        function [vL,vR,uR] = applyCond(n_dof,fixNod)
-            vR=zeros(size(fixNod,1),1);
-            uR=ones(size(fixNod,1),1);
+        function computeSolver(obj)
+            obj=obj.applyCond();
+            obj=obj.partitionK();
+            obj=obj.equationObtention();
+            obj=obj.compute();
+
+        end
+    end
+
+    methods (Access=private)
+        function obj = compute(obj)
+            switch obj.solverType 
+                case "direct"
+                obj.freeDispl = directSolver.resolution(obj.A,obj.b);
+                case "iterative"
+                obj.freeDispl = iterativeSolver.resolution(obj.A,obj.b);
+            end
+        end
+
+        function obj = applyCond(obj) %[vL,vR,uR] =
+            n_dof=obj.dimensions.numDOFsTotal;
+
+            vR=zeros(size(obj.fixNod,1),1);
+            uR=ones(size(obj.fixNod,1),1);
             
-            for i=1:size(fixNod,1)    
-                if fixNod(i,2)==1
-                   vR(i)=3*fixNod(i,1)-2;
-                   uR(i)=fixNod(i,3);
-                end
-            
-                if fixNod(i,2)==2
-                   vR(i)=3*fixNod(i,1)-1;
-                   uR(i)=fixNod(i,3);
-                end
-                
-                if fixNod(i,2)==3
-                   vR(i)=3*fixNod(i,1);
-                   uR(i)=fixNod(i,3);
+            for i=1:size(obj.fixNod,1)    
+                if obj.fixNod(i,2)==1
+                   vR(i)=3*obj.fixNod(i,1)-2;
+                   uR(i)=obj.fixNod(i,3);
+                else
+                    if obj.fixNod(i,2)==2
+                       vR(i)=3*obj.fixNod(i,1)-1;
+                       uR(i)=obj.fixNod(i,3);
+                    else
+                        if obj.fixNod(i,2)==3
+                           vR(i)=3*obj.fixNod(i,1);
+                           uR(i)=obj.fixNod(i,3);
+                        end
+                    end
                 end
             end
             
-            vL=zeros(n_dof-size(fixNod,1),1);
-            
+            vL=zeros(n_dof-size(obj.fixNod,1),1);
             suma=1;
             for i=1:n_dof
                 cont=0;
@@ -51,114 +90,63 @@ classdef Solver < handle
                    suma=suma+1;
                 end
             end
+
+            obj.freeDOFs=vL;
+            obj.fixedDOFs=vR;
+            obj.fixedDispl=uR;
         end
 
-        function [KRR,KRL,KLR,KLL,FL,FR]=partitionK(vL,vR,KG,Fext)
+        function obj =partitionK (obj)
+            vL=obj.freeDOFs;
+            vR=obj.fixedDOFs;
+            KG=obj.kGlob;
             %Matriu KRR
-            KRR = zeros(numel(vR),numel(vR));
+            obj.KRR = zeros(numel(vR),numel(vR));
             for i = 1:numel(vR)
                 for j = 1:numel(vR)
-                    KRR(i,j)=KG(vR(i),vR(j));  
+                    obj.KRR(i,j)=KG(vR(i),vR(j));  
                 end
             end   
             %Matriu KRL
-            KRL = zeros(numel(vR),numel(vL));
+            obj.KRL = zeros(numel(vR),numel(vL));
             for i = 1:numel(vR)
                 for j = 1:numel(vL)
-                    KRL(i,j)=KG(vR(i),vL(j));  
+                    obj.KRL(i,j)=KG(vR(i),vL(j));  
                 end
             end
                 
             %Matriu KLR
-            KLR = zeros(numel(vL),numel(vR));
+            obj.KLR = zeros(numel(vL),numel(vR));
             for i = 1:numel(vL)
                 for j = 1:numel(vR)
-                    KLR(i,j)=KG(vL(i),vR(j));   
+                    obj.KLR(i,j)=KG(vL(i),vR(j));   
                 end
             end
             
             %Matriu KLL
-            KLL = zeros(numel(vL),numel(vL));
+            obj.KLL = zeros(numel(vL),numel(vL));
             for i = 1:numel(vL)
                 for j = 1:numel(vL)
-                    KLL(i,j)=KG(vL(i),vL(j));
+                    obj.KLL(i,j)=KG(vL(i),vL(j));
                 end
             end
                 
             %Vector FL
-            FL = zeros(numel(vL),1);
+            obj.FL = zeros(numel(vL),1);
             for i = 1:numel(vL)
-               FL(i,1)=Fext(vL(i),1);
+               obj.FL(i,1)=obj.Fext(vL(i),1);
             end 
             
             %Vector FR
-            FR = zeros(numel(vR),1);
+            obj.FR = zeros(numel(vR),1);
             for i = 1:numel(vR)
-               FR(i,1)=Fext(vR(i),1);
+               obj.FR(i,1)=obj.Fext(vR(i),1);
             end 
         end
 
-        function [u,R]=displacementObtention(cParams,uR,vL,vR,uL)
-            R = cParams.KRR*cParams.uR+cParams.KRL*uL-cParams.FR;
-            %Obtenció del vector u amb tots els desplaçaments
-            u = zeros(numel(vL)+numel(vR),1);
-            for i = 1:numel(vR)
-                u(vR(i),1) = uR(i,1);
-            end
-            for i = 1:numel(vL)
-                u(vL(i),1) = uL(i,1) ;
-            end
-        end
-
-        function [eps,sig]=computeStrainStressBar(n_d,n_nod,n_el,u,Td,x,Tn,mat,Tmat)
-            n_i = n_d;
-            n_el_dof = n_i*n_nod;
-            ue = zeros(n_el_dof,1);
-            sig = zeros(n_el,1);
-            eps = zeros(n_el,1);
-            
-            %Rotation matrix
-            
-            for e=1:n_el
-                x1e=x(Tn(e,1),1);
-                y1e=x(Tn(e,1),2);
-                z1e=x(Tn(e,1),3);
-                x2e=x(Tn(e,2),1);
-                y2e=x(Tn(e,2),2);
-                z2e=x(Tn(e,2),3);
-                le=sqrt((x2e-x1e)^2+(y2e-y1e)^2+(z2e-z1e)^2);
-                
-                Re = 1/le*[x2e-x1e y2e-y1e z2e-z1e 0 0 0;
-                           0 0 0 x2e-x1e y2e-y1e z2e-z1e];
-                
-                 
-                for i = 1:n_el_dof
-                I = Td(e,i);  
-                ue(i,1) = u(I,1);
-                end 
-            
-                %Desplaçament en coordenades locals
-                ueprima =Re*ue;
-            
-                %Deformació de la barra e
-                epsilone = (1/le)*[-1 1]*ueprima;
-            
-                %Mòdul de Young de la barra e
-                Ee = mat.youngModulus;
-                %Tensió de la barra e
-                sigmae = Ee*epsilone;
-            
-                %Vectors de tensions ideformacions 
-                sig(e,1) = sigmae;
-                eps(e,1) = epsilone;
-            end
-        end
-
-        function sigbuck=buckling(leb,mat,Tmat,n_el)
-            sigbuck = zeros(n_el,1);        
-            for e = 1:n_el
-             sigbuck(e,1) = (pi^2)*mat.youngModulus*mat.Inertia/(((leb(e,1)*1000)^2)*mat.section);
-            end    
+        function obj=equationObtention(obj)
+            obj.A=obj.KLL;
+            obj.b=obj.FL-obj.KLR*obj.fixedDispl;
         end
 
     end
