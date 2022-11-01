@@ -1,4 +1,4 @@
-classdef Dimensions
+classdef Dimensions < handle
     
     properties
         numDimensions %= number of DOFs per each node

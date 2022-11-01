@@ -1,4 +1,4 @@
-classdef GlobalForceVectorAssembly
+classdef GlobalForceVectorAssembly < handle
 
     properties (Access=public)
         Fext
@@ -11,10 +11,10 @@ classdef GlobalForceVectorAssembly
     end
 
     methods (Access=public)
-        function obj = GlobalForceVectorAssembly(data,dimensions)
-            obj.forcesData=data.forcesData;
-            obj.numDOFsTotal=dimensions.numDOFsTotal;
-            obj.numDimensions=dimensions.numDimensions;
+        function obj = GlobalForceVectorAssembly(cParams)
+            obj.forcesData=cParams.data.forcesData;
+            obj.numDOFsTotal=cParams.dimensions.numDOFsTotal;
+            obj.numDimensions=cParams.dimensions.numDimensions;
         end
 
         function obj=computeF(obj)

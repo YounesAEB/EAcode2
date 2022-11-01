@@ -1,4 +1,4 @@
-classdef PlotStress3D
+classdef PlotStress3D < handle
     %UNTITLED4 Summary of this class goes here
     %   Detailed explanation goes here
 

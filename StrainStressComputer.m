@@ -1,4 +1,4 @@
-classdef StrainStressComputer
+classdef StrainStressComputer < handle
 
     properties
         eps
@@ -10,23 +10,21 @@ classdef StrainStressComputer
         data
         dimensions
         displ
-        DOFsConnectivities
+        DOFsConnectivity
         elemLong
     end
 
     methods
-        function obj = StrainStressComputer(data,dimensions,k,d)
-            obj.data=data;
-            obj.dimensions=dimensions;
-            obj.DOFsConnectivities=k.DOFsConnectivities;
-            obj.elemLong=k.elementsLong;
-            obj.displ=d.displ;
+        function obj = StrainStressComputer(cParams)
+            obj.data=cParams.data;
+            obj.dimensions=cParams.dimensions;
+            obj.DOFsConnectivity=cParams.DOFsConnectivity;
+            obj.elemLong=cParams.elemLong;
+            obj.displ=cParams.displ;
         end
-        function obj=compute(obj)
-            %obj.computeSS();
-            %obj.buckling();
-            obj=obj.computeSS();
-            obj=obj.buckling();
+        function compute(obj)
+            obj.computeSS();
+            obj.buckling();
         end
 
     end
@@ -39,7 +37,7 @@ classdef StrainStressComputer
             Tn=obj.data.nodalConnectivities;
             x=obj.data.nodalCoordinates;
             u=obj.displ;
-            Td=obj.DOFsConnectivities;
+            Td=obj.DOFsConnectivity;
             mat=obj.data.materialProperties;
             Tmat=obj.data.materialConnectivity;
             

@@ -26,20 +26,19 @@ classdef Solver < handle
     end
 
     methods (Access=public)
-        function obj=Solver(cParams,data,dimensions,k,f)
-            obj.solverType=cParams.type;
-            obj.fixNod=data.fixNod;
-            obj.dimensions=dimensions;
-            obj.kGlob=k.kGlob;
-            obj.Fext=f.Fext;
+        function obj=Solver(cParams)
+            obj.solverType=cParams.solverType;
+            obj.fixNod=cParams.data.fixNod;
+            obj.dimensions=cParams.dimensions;
+            obj.kGlob=cParams.kGlob;
+            obj.Fext=cParams.Fext;
         end
 
         function computeSolver(obj)
-            obj=obj.applyCond();
-            obj=obj.partitionK();
-            obj=obj.equationObtention();
-            obj=obj.compute();
-
+            obj.applyCond();
+            obj.partitionK();
+            obj.equationObtention();
+            obj.compute();
         end
     end
 

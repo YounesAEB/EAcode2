@@ -1,4 +1,4 @@
-classdef DisplacementReactionObtention
+classdef DisplacementReactionObtention < handle
     properties
         displ
         react

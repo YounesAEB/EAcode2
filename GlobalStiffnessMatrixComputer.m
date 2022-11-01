@@ -1,10 +1,10 @@
-classdef GlobalStiffnessMatrixComputer
+classdef GlobalStiffnessMatrixComputer < handle
 
     properties (Access=public)
         kElem
         kGlob
         elementsLong
-        DOFsConnectivities
+        DOFsConnectivity
     end
 
     properties (Access=private)
@@ -13,9 +13,9 @@ classdef GlobalStiffnessMatrixComputer
     end
 
     methods (Access=public)
-        function obj = GlobalStiffnessMatrixComputer(data,dimensions)  
-            obj.dimensions=dimensions;
-            obj.data=data;
+        function obj = GlobalStiffnessMatrixComputer(c)  
+            obj.dimensions=c.dimensions;
+            obj.data=c.data;
         end
 
         function obj = compute(obj)
@@ -37,7 +37,7 @@ classdef GlobalStiffnessMatrixComputer
                 Td(i,5)=Tnod(i,2)*obj.dimensions.numDimensions-1;
                 Td(i,6)=Tnod(i,2)*obj.dimensions.numDimensions;
             end
-            obj.DOFsConnectivities=Td;
+            obj.DOFsConnectivity=Td;
         end
 
         function obj=computekElem(obj)
@@ -71,7 +71,7 @@ classdef GlobalStiffnessMatrixComputer
 
         function obj = assemblyKG(obj)
             obj.kGlob=zeros(obj.dimensions.numDOFsTotal);
-            Td=obj.DOFsConnectivities;
+            Td=obj.DOFsConnectivity;
             for e=1:obj.dimensions.numElements
                 for i=1:obj.dimensions.numDOFsElement
                     I=Td(e,i);

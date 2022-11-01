@@ -23,11 +23,11 @@ dimensions=Dimensions.setDimensions(data);
 
 % Global matrix assembly
 k = GlobalStiffnessMatrixComputer(data,dimensions);
-k = k.compute();
+k.compute();
 
 % Global force vector assembly
 f=GlobalForceVectorAssembly(data,dimensions);
-f=f.computeF();
+f.computeF();
  
 % System resolution
 s=Solver(cParams,data,dimensions,k,f);
@@ -35,12 +35,12 @@ s.computeSolver();
 
 %Obtention of displacements and reactions
 d=DisplacementReactionObtention(s);
-d=d.compute();
+d.compute();
 
 % Compute strain and stresses + buckling stress
 ss=StrainStressComputer(data,dimensions,k,d);
 %ss.compute();
-ss=ss.compute();
+ss.compute();
 
 %% POSTPROCESS
 % Plot deformed structure with stress of each bar
