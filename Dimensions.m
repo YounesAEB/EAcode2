@@ -1,6 +1,6 @@
 classdef Dimensions < handle
     
-    properties
+    properties (Access=public)
         numDimensions %= number of DOFs per each node
         numDOFsNode % Number of nodes per each node
         numNodesTotal 
@@ -10,10 +10,11 @@ classdef Dimensions < handle
         numDOFsElement
     end
     
-    methods (Access=public, Static)
+    methods (Access=public, Static) % L'Àlex va dir d'evitar static methods?
         function obj = setDimensions(data)
+
             x=data.nodalCoordinates;
-            Tnod=data.nodalConnectivities;
+            Tnod=data.nodalConnectivity;
             
             obj.numDimensions=size(x,2);
             obj.numDOFsNode=obj.numDimensions;

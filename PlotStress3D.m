@@ -1,6 +1,4 @@
 classdef PlotStress3D < handle
-    %UNTITLED4 Summary of this class goes here
-    %   Detailed explanation goes here
 
     properties (Access=private)
         nd
@@ -16,18 +14,18 @@ classdef PlotStress3D < handle
     end
 
     methods
-        function obj = PlotStress3D(cParams,dimensions,data,d,ss)
+        function obj = PlotStress3D(cParams)
             % Precomputations
-            obj.scale=cParams.scale;
-            obj.nd = dimensions.numDimensions;
-            obj.X = data.nodalCoordinates(:,1);
-            obj.Y = data.nodalCoordinates(:,2);
-            obj.Z = data.nodalCoordinates(:,3);
-            obj.ux = d.displ(1:obj.nd:end);
-            obj.uy = d.displ(2:obj.nd:end);
-            obj.uz = d.displ(3:obj.nd:end);
-            obj.Tnod= data.nodalConnectivities;
-            obj.sig=ss.sig;
+            obj.scale   = cParams.scale;
+            obj.nd      = cParams.dimensions.numDimensions;
+            obj.X       = cParams.data.nodalCoordinates(:,1);
+            obj.Y       = cParams.data.nodalCoordinates(:,2);
+            obj.Z       = cParams.data.nodalCoordinates(:,3);
+            obj.ux      = cParams.displ(1:obj.nd:end);
+            obj.uy      = cParams.displ(2:obj.nd:end);
+            obj.uz      = cParams.displ(3:obj.nd:end);
+            obj.Tnod    = cParams.data.nodalConnectivity;
+            obj.sig     = cParams.stress;
         end
 
         function plot(obj)
