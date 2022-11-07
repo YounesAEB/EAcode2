@@ -14,11 +14,11 @@ classdef DisplacementReactionObtention < handle
         KLL
         Fext
         fixedDispl
-        freeDispl
         FR
         FL
         freeDOFs
         fixedDOFs
+        freeDispl
     end
 
     methods (Access = public)

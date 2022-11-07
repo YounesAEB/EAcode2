@@ -64,7 +64,6 @@ classdef GlobalStiffnessMatrixComputer < handle
                 Kelprima =(mat(Tmat(e),1)*mat(Tmat(e),2))/(le)*[1 -1; -1 1];
                 Kelem(:,:,e) = Re.'*Kelprima*Re;
             end
-
             obj.kElem=Kelem;
         end
 

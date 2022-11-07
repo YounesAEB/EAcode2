@@ -1,24 +1,22 @@
 classdef StructuralComputer < handle
 
     properties (Access = public)
-       displ
-       reactions
+       displacements
        stress
-       strain
+       kGlob
+       extForces
+       data
+       dimensions
+       solverType
+       DOFsConnectivity
     end
     properties (Access = private)
-        solverType
+        strain
+        reactions
         scale
-        data
-        dimensions
         kElem
-        kGlob
-        elemLong
-        DOFsConnectivity
-        extForces
         freeDOFs
         fixedDOFs
-        freeDispl
         fixedDispl
     end
 
@@ -51,7 +49,6 @@ classdef StructuralComputer < handle
             k.compute();
             obj.kElem            =   k.kElem;
             obj.kGlob            =   k.kGlob;
-            obj.elemLong         =   k.elementsLong;
             obj.DOFsConnectivity =   k.DOFsConnectivity;
         end
 
@@ -71,15 +68,14 @@ classdef StructuralComputer < handle
             c.Fext          =   obj.extForces;
             d=DisplacementReactionObtention(c);
             d.compute();
-            obj.displ=d.displ;
+            obj.displacements=d.displ;
             obj.reactions=d.react;
         end
 
         function computeStrainStress(obj)
             c.data              =   obj.data;
             c.dimensions        =   obj.dimensions;
-            c.displ             =   obj.displ;
-            c.elemLong          =   obj.elemLong;
+            c.displ             =   obj.displacements;
             c.DOFsConnectivity  =   obj.DOFsConnectivity;
             ss                  =   StrainStressComputer(c);
             ss.compute();
@@ -91,7 +87,7 @@ classdef StructuralComputer < handle
             cParams.dimensions  =   obj.dimensions;
             cParams.data        =   obj.data;
             cParams.stress      =   obj.stress;
-            cParams.displ       =   obj.displ;
+            cParams.displ       =   obj.displacements;
             cParams.scale       =   obj.scale;
             p=PlotStress3D(cParams);
             p.plot();

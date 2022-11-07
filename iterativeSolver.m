@@ -5,7 +5,7 @@ classdef IterativeSolver < Solver
     end
 
     methods (Access = public)
-        function obj=DirectSolver(cParams)
+        function obj=IterativeSolver(cParams)
             obj.A=cParams.A;
             obj.b=cParams.b;
         end
