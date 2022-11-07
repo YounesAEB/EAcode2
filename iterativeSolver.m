@@ -1,9 +1,17 @@
-classdef iterativeSolver < Solver
+classdef IterativeSolver < Solver
+    properties (Access = private)
+        A
+        b
+    end
 
-    methods (Access = public, Static)
+    methods (Access = public)
+        function obj=DirectSolver(cParams)
+            obj.A=cParams.A;
+            obj.b=cParams.b;
+        end
        
-        function uL = resolution(A,b)
-            uL=pcg(A,b,1e-12,300);
+        function uL = solve(obj)
+            uL=pcg(obj.A,obj.b,1e-12,300);
         end
     end
 end

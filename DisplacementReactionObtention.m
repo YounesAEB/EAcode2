@@ -92,9 +92,8 @@ classdef DisplacementReactionObtention < handle
             cParams.solverType=obj.solverType;
             cParams.A=obj.KLL;
             cParams.b=obj.FL-obj.KLR*obj.fixedDispl;
-            c= Solver(cParams);
-            c.computeSolver();
-            obj.freeDispl=c.freeDispl;
+            s=Solver.create(cParams);
+            obj.freeDispl=s.solve();
 
             vL=obj.freeDOFs;
             vR=obj.fixedDOFs;         

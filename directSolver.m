@@ -1,9 +1,18 @@
-classdef directSolver < Solver
+classdef DirectSolver < Solver
 
-    methods (Access = public, Static)
+    properties (Access = private)
+        A
+        b
+    end
+
+    methods (Access = public)
+        function obj=DirectSolver(cParams)
+            obj.A=cParams.A;
+            obj.b=cParams.b;
+        end
        
-        function uL = resolution(A,b)
-            uL=A\b;
+        function uL = solve(obj)
+            uL=obj.A\obj.b;
         end
     end
 end
