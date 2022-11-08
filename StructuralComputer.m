@@ -3,14 +3,14 @@ classdef StructuralComputer < handle
     properties (Access = public)
        displacements
        stress
+    end
+    properties (Access = private)
        kGlob
        extForces
        data
        dimensions
        solverType
        DOFsConnectivity
-    end
-    properties (Access = private)
         strain
         reactions
         scale
