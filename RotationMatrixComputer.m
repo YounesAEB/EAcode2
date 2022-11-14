@@ -1,18 +1,18 @@
-classdef ElementsLengthAndRotationMatrixComputer < handle
+classdef RotationMatrixComputer < handle
     
     properties (Access = public)
-        elemLength
-        RotationMatrix
+        rotationMatrix
     end
     properties (Access = private)
+        elemLength
         nodalConnectivity
         nodalCoordinates
-        elemNumber
+        iElem
         P
     end
 
     methods (Access = public)
-        function obj = ElementsLengthAndRotationMatrixComputer(cParams)
+        function obj = RotationMatrixComputer(cParams)
             obj.init(cParams);
         end
         function compute(obj)
@@ -26,13 +26,13 @@ classdef ElementsLengthAndRotationMatrixComputer < handle
         function  init(obj,cParams)
             obj.nodalCoordinates=cParams.nodalCoordinates;
             obj.nodalConnectivity=cParams.nodalConnectivity;
-            obj.elemNumber=cParams.e;
+            obj.iElem=cParams.iElem;
         end
 
         function computePoints(obj)
             x=obj.nodalCoordinates;
             Tnod=obj.nodalConnectivity;
-            e=obj.elemNumber;
+            e=obj.iElem;
 
             obj.P.x1e=x(Tnod(e,1),1);         
             obj.P.y1e=x(Tnod(e,1),2);             
@@ -48,7 +48,7 @@ classdef ElementsLengthAndRotationMatrixComputer < handle
         end
 
         function computeRotationMatrix(obj)
-            obj.RotationMatrix = 1/obj.elemLength*[obj.P.x2e-obj.P.x1e obj.P.y2e-obj.P.y1e obj.P.z2e-obj.P.z1e 0 0 0;
+            obj.rotationMatrix = 1/obj.elemLength*[obj.P.x2e-obj.P.x1e obj.P.y2e-obj.P.y1e obj.P.z2e-obj.P.z1e 0 0 0;
                            0 0 0 obj.P.x2e-obj.P.x1e obj.P.y2e-obj.P.y1e obj.P.z2e-obj.P.z1e];
         end
     end

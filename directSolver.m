@@ -1,6 +1,4 @@
 classdef DirectSolver < Solver
-    
-    %nom no canvia a github!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     properties (Access = private)
         A

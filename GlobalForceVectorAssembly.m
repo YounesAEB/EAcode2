@@ -12,12 +12,21 @@ classdef GlobalForceVectorAssembly < handle
 
     methods (Access=public)
         function obj = GlobalForceVectorAssembly(cParams)
-            obj.forcesData=cParams.data.forcesData;
-            obj.numDOFsTotal=cParams.dimensions.numDOFsTotal;
-            obj.numDimensions=cParams.dimensions.numDimensions;
+            obj.init(cParams);
+        end
+        function compute(obj)
+            obj.computeFext;
+        end
+    end
+
+    methods (Access = private)
+        function init(obj,cParams)
+            obj.forcesData=cParams.forcesData;
+            obj.numDOFsTotal=cParams.numDOFsTotal;
+            obj.numDimensions=cParams.numDimensions;
         end
 
-        function obj=computeF(obj)
+        function obj=computeFext(obj)
             obj.Fext=zeros(obj.numDOFsTotal,1);
             for k=1:size(obj.forcesData,1)
                 if obj.forcesData(k,2)==1

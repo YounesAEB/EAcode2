@@ -28,26 +28,26 @@ classdef StructuralComputer < handle
             obj.computeDisplacements();
             obj.computeReactions();
             obj.computeStrainStress();
-            obj.plotDeformedStructure();
+            %obj.plotDeformedStructure();
         end
     end
     methods (Access = private)
         function init(obj,cParams)
             obj.initialData =   Preprocess(cParams);
             obj.initialData.setInitialData();
-            obj.dimensions  =   DimensionsComputer.computeDimensions(obj.initialData);
+            obj.dimensions  =   Dimensions.setDimensions(obj.initialData);
             obj.solverType  =   cParams.type;
             obj.scale       =   cParams.scale;
         end
             
         function computeStiffnessMatrix(obj)
-            c.initialData        =   obj.initialData; % Es necessita tot
+            c.initialData        =   obj.initialData;
             c.dimensions         =   obj.dimensions;
             d                    =   DOFManager(c);
             d.compute();
             obj.boundaryCond     =   d.boundaryCond;
             obj.DOFsConnectivity =   d.DOFsConnectivity;
-            c.DOFsConnectivity   =   obj.DOFsConnectivity;
+            c.DOFsConnectivity   =   obj.DOFsConnectivity; % ??? no entiendo pq puse esto: "esta linea puede ir dentro d la funcion evidentemente
             k                    =   GlobalStiffnessMatrixComputer(c);
             k.compute();
             obj.globalK          =   k.kGlob;
@@ -64,36 +64,38 @@ classdef StructuralComputer < handle
 
         function computeDisplacements(obj)
             c.solverType    =   obj.solverType;
+            c.data          =   obj.initialData;
+            c.dimensions    =   obj.dimensions;
             c.globalK       =   obj.globalK;
-            c.exteriorForces =  obj.extForces;
+            c.exteriorForce         =   obj.extForces;
             c.boundaryCond  =   obj.boundaryCond;
             d               =   DisplacementComputer(c);
             d.compute();
-            obj.boundaryCond.freeDispl = d.freeDispl;
-            obj.displacements = d.displacements;
+            obj.displacements=d.displ;
         end
 
         function computeReactions(obj)
-            c.globalK       =   obj.globalK;
-            c.exteriorForces =  obj.extForces;
+            c.solverType    =   obj.solverType;
+            c.data          =   obj.initialData;
+            c.dimensions    =   obj.dimensions;
+            c.kGlob         =   obj.globalK;
+            c.Fext          =   obj.extForces;
             c.boundaryCond  =   obj.boundaryCond;
-            r               =   ReactionsComputer(c);
+            r               =   DisplacementReactionObtention(c);
             r.compute();
-            obj.reactions   =   r.reactions;
+            obj.displacements=d.displ;
+            obj.reactions=d.react;
         end
 
         function computeStrainStress(obj)
-            c.materialProperties   =   obj.initialData.materialProperties;
-            c.materialConnectivity =   obj.initialData.materialConnectivity;
-            c.nodalConnectivity    =   obj.initialData.nodalConnectivity;
-            c.nodalCoordinates     =   obj.initialData.nodalCoordinates;
+            c.data              =   obj.initialData;
             c.dimensions        =   obj.dimensions;
             c.displ             =   obj.displacements;
-            c.DOFsConnectivity  =  -obj.DOFsConnectivity;
-            ss                  = -  StrainStressComputer(c);
+            c.DOFsConnectivity  =   obj.DOFsConnectivity;
+            ss                  =   StrainStressComputer(c);
             ss.compute();
-            obj.stress          =   ss.stress;
-            obj.strain          =   ss.strain;
+            obj.stress          =   ss.sig;
+            obj.strain          =   ss.eps;
         end
 
         function plotDeformedStructure(obj)

@@ -1,15 +1,16 @@
 classdef GlobalStiffnessMatrixComputer < handle
 
     properties (Access=public)
-        kElem
         kGlob
-        elementsLong
-        DOFsConnectivity
     end
 
     properties (Access=private)
-        data
+        elementalK
+        initialData
         dimensions
+        DOFsConnectivity
+        elemLength
+        rotationMatrix
     end
 
     methods (Access=public)
@@ -18,64 +19,68 @@ classdef GlobalStiffnessMatrixComputer < handle
         end
 
         function obj = compute(obj)
-            obj.DOFsConnectivityComputer();
-            obj.computekElem();
-            obj.assemblyKG();
+            obj.computeElementalStiffness();
+            obj.assemblyStiffnessMatrix();
         end
     end
 
     methods (Access=private)
         function init(obj,cParams)
             obj.dimensions  =   cParams.dimensions;
-            obj.data        =   cParams.data;
+            obj.initialData =   cParams.initialData;
+            obj.DOFsConnectivity = cParams.DOFsConnectivity;
         end
 
-        function DOFsConnectivityComputer(obj)
-            Td      =   zeros(obj.dimensions.numElements, obj.dimensions.numDOFsElement);
-            Tnod    =   obj.data.nodalConnectivity;
-            nd      =   obj.dimensions.numDimensions;
+        function computeElementalStiffness(obj)
+            nElem                =   obj.dimensions.numElements;
+            nElemDOF             =   obj.dimensions.numDOFsElement;
+            materialProp         =   obj.initialData.materialProperties;
+            materialConnect      =   obj.initialData.materialConnectivity;
 
-            for i=1:obj.dimensions.numElements
-                Td(i,1)=Tnod(i,1)*nd-2;
-                Td(i,2)=Tnod(i,1)*nd-1;
-                Td(i,3)=Tnod(i,1)*nd;
-                Td(i,4)=Tnod(i,2)*nd-2;
-                Td(i,5)=Tnod(i,2)*nd-1;
-                Td(i,6)=Tnod(i,2)*nd;
-            end
-            obj.DOFsConnectivity    =   Td;
-        end
+            Kelem       =   zeros(nElemDOF, nElemDOF, nElem);
+            for e=1:nElem
+                iElem=e;
+                obj.computeElementLength(iElem);
+                obj.computeRotationMatrix(iElem);
 
-        function computekElem(obj)
-            n_el        =   obj.dimensions.numElements;
-            n_el_dof    =   obj.dimensions.numDOFsElement;
-            mat         =   obj.data.materialProperties;
-            Tmat        =   obj.data.materialConnectivity;
-            c.nodalConnectivity      =   obj.data.nodalConnectivity;
-            c.nodalCoordinates  = obj.data.nodalCoordinates;
+                le   =    obj.elemLength;
+                Re   =    obj.rotationMatrix;
+                youngModulus = materialProp(materialConnect(e),1);
+                Area = materialProp(materialConnect(e),2);
 
-            Kelem       =   zeros(n_el_dof, n_el_dof, n_el);
-            for e=1:n_el
-                c.e=e;%
-                l=ElementsLengthAndRotationMatrixComputer(c);
-                l.compute();
-                le=l.elemLength;
-                Re=l.RotationMatrix;%
-                Kelprima =(mat(Tmat(e),1)*mat(Tmat(e),2))/(le)*[1 -1; -1 1];
+                Kelprima =youngModulus*Area/(le)*[1 -1; -1 1];
                 Kelem(:,:,e) = Re.'*Kelprima*Re;
             end
-            obj.kElem=Kelem;
+            obj.elementalK=Kelem;
         end
 
-        function assemblyKG(obj)
-            obj.kGlob=zeros(obj.dimensions.numDOFsTotal);
-            Td=obj.DOFsConnectivity;
+        function computeElementLength(obj,iElem)
+            c.nodalConnectivity = obj.initialData.nodalConnectivity;
+            c.nodalCoordinates  = obj.initialData.nodalCoordinates;
+            c.iElem             = iElem;
+            l  = ElementsLengthComputer(c);
+            l.compute();
+            obj.elemLength = l.elemLength;
+        end
+
+        function computeRotationMatrix(obj,iElem)
+            c.nodalConnectivity = obj.initialData.nodalConnectivity;
+            c.nodalCoordinates  = obj.initialData.nodalCoordinates;
+            c.iElem             = iElem;
+            r  = RotationMatrixComputer(c);
+            r.compute();
+            obj.rotationMatrix = r.rotationMatrix;
+        end
+
+        function assemblyStiffnessMatrix(obj)
+            obj.kGlob   =   zeros(obj.dimensions.numDOFsTotal);
+            Td          =   obj.DOFsConnectivity;
             for e=1:obj.dimensions.numElements
                 for i=1:obj.dimensions.numDOFsElement
-                    I=Td(e,i);
-                    for j=1:obj.dimensions.numDOFsElement
-                        J=Td(e,j);
-                        obj.kGlob(I,J)=obj.kGlob(I,J)+obj.kElem(i,j,e);
+                    I = Td(e,i);
+                    for j = 1:obj.dimensions.numDOFsElement
+                        J = Td(e,j);
+                        obj.kGlob(I,J) = obj.kGlob(I,J)+obj.elementalK(i,j,e);
                     end
                 end
             end

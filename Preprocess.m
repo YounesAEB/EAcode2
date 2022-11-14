@@ -1,4 +1,4 @@
-classdef Data < handle
+classdef Preprocess < handle
 
     properties (Access = public)
         nodalCoordinates
@@ -18,11 +18,11 @@ classdef Data < handle
     end
 
     methods (Access=public)
-        function obj = Data (cParams)
+        function obj = Preprocess (cParams)
             obj.init(cParams);
         end
 
-        function setData(obj)
+        function setInitialData(obj)
             obj.setNodalCoord();
             obj.setNodalConnectiviy();
             obj.setFixedNodes();

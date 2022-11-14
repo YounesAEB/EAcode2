@@ -51,8 +51,8 @@ classdef StrainStressComputer < handle
                 obj.computeRotationMatrix(iElem);
                 globalCoordDispl = obj.computeGlobalCoordDisplacements(iElem);
 
-                le=obj.elemLength;
-                Re=obj.rotationMatrix;
+                le=l.elemLength;
+                Re=l.RotationMatrix;
             
                 localCoordDispl      =   Re*globalCoordDispl; 
                 deformationElem =   (1/le)*[-1 1]*localCoordDispl; 
@@ -74,8 +74,8 @@ classdef StrainStressComputer < handle
         end
 
         function computeRotationMatrix(obj,iElem)
-            c.nodalConnectivity = obj.nodalConnectivity;
-            c.nodalCoordinates  = obj.nodalCoordinates;
+            c.nodalConnectivity = obj.initialData.nodalConnectivity;
+            c.nodalCoordinates  = obj.initialData.nodalCoordinates;
             c.iElem             = iElem;
             r  = RotationMatrixComputer(c);
             r.compute();
@@ -89,7 +89,7 @@ classdef StrainStressComputer < handle
             
             globalCoordDispl = zeros(nElemDOFs,1);
             for i = 1:nElemDOFs
-                I = Td(iElem,i);  
+                I = Td(e,iElem);  
                 globalCoordDispl(i,1) = u(I,1);
             end 
         end
