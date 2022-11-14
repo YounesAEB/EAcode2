@@ -21,9 +21,9 @@ classdef GlobalForceVectorAssembly < handle
 
     methods (Access = private)
         function init(obj,cParams)
-            obj.forcesData=cParams.forcesData;
-            obj.numDOFsTotal=cParams.numDOFsTotal;
-            obj.numDimensions=cParams.numDimensions;
+            obj.forcesData      =   cParams.forcesData;
+            obj.numDOFsTotal    =   cParams.numDOFsTotal;
+            obj.numDimensions   =   cParams.numDimensions;
         end
 
         function obj=computeFext(obj)

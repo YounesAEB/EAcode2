@@ -4,17 +4,17 @@ classdef StructuralComputer < handle
        displacements
        stress
        globalK
-       extForces
+       exteriorForces
        initialData
        dimensions
        solverType
        DOFsConnectivity
+       boundaryCond
     end
     properties (Access = private)
         strain
         reactions
         scale
-        boundaryCond
     end
 
     methods (Access = public)
@@ -24,11 +24,11 @@ classdef StructuralComputer < handle
 
         function globalComputer(obj)
             obj.computeStiffnessMatrix();
-            obj.assembleForceVector();
+            obj.computeForceVector();
             obj.computeDisplacements();
             obj.computeReactions();
             obj.computeStrainStress();
-            obj.plotDeformedStructure();
+            %obj.plotDeformedStructure();
         end
     end
     methods (Access = private)
@@ -50,22 +50,22 @@ classdef StructuralComputer < handle
             c.DOFsConnectivity   =   obj.DOFsConnectivity;
             k                    =   GlobalStiffnessMatrixComputer(c);
             k.compute();
-            obj.globalK          =   k.kGlob;
+            obj.globalK          =   k.globalK;
         end
 
-        function assembleForceVector(obj)
+        function computeForceVector(obj)
             c.forcesData    =  obj.initialData.forcesData;
             c.numDOFsTotal  =  obj.dimensions.numDOFsTotal;
             c.numDimensions =  obj.dimensions.numDimensions;
             f               =  GlobalForceVectorAssembly(c);
             f.compute();
-            obj.extForces   =  f.Fext;
+            obj.exteriorForces =  f.Fext;
         end
 
         function computeDisplacements(obj)
             c.solverType    =   obj.solverType;
             c.globalK       =   obj.globalK;
-            c.exteriorForces =  obj.extForces;
+            c.exteriorForces =  obj.exteriorForces;
             c.boundaryCond  =   obj.boundaryCond;
             d               =   DisplacementComputer(c);
             d.compute();
@@ -75,7 +75,7 @@ classdef StructuralComputer < handle
 
         function computeReactions(obj)
             c.globalK       =   obj.globalK;
-            c.exteriorForces =  obj.extForces;
+            c.exteriorForces =  obj.exteriorForces;
             c.boundaryCond  =   obj.boundaryCond;
             r               =   ReactionsComputer(c);
             r.compute();
@@ -89,8 +89,8 @@ classdef StructuralComputer < handle
             c.nodalCoordinates     =   obj.initialData.nodalCoordinates;
             c.dimensions        =   obj.dimensions;
             c.displ             =   obj.displacements;
-            c.DOFsConnectivity  =  -obj.DOFsConnectivity;
-            ss                  = -  StrainStressComputer(c);
+            c.DOFsConnectivity  =   obj.DOFsConnectivity;
+            ss                  =   StrainStressComputer(c);
             ss.compute();
             obj.stress          =   ss.stress;
             obj.strain          =   ss.strain;
@@ -102,7 +102,7 @@ classdef StructuralComputer < handle
             cParams.stress      =   obj.stress;
             cParams.displ       =   obj.displacements;
             cParams.scale       =   obj.scale;
-            p=PlotStress3D(cParams);
+            p = PlotStress3D(cParams);
             p.plot();
         end
     end

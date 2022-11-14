@@ -1,7 +1,7 @@
 classdef GlobalStiffnessMatrixComputer < handle
 
     properties (Access=public)
-        kGlob
+        globalK
     end
 
     properties (Access=private)
@@ -73,14 +73,14 @@ classdef GlobalStiffnessMatrixComputer < handle
         end
 
         function assemblyStiffnessMatrix(obj)
-            obj.kGlob   =   zeros(obj.dimensions.numDOFsTotal);
+            obj.globalK   =   zeros(obj.dimensions.numDOFsTotal);
             Td          =   obj.DOFsConnectivity;
             for e=1:obj.dimensions.numElements
                 for i=1:obj.dimensions.numDOFsElement
                     I = Td(e,i);
                     for j = 1:obj.dimensions.numDOFsElement
                         J = Td(e,j);
-                        obj.kGlob(I,J) = obj.kGlob(I,J)+obj.elementalK(i,j,e);
+                        obj.globalK(I,J) = obj.globalK(I,J)+obj.elementalK(i,j,e);
                     end
                 end
             end
