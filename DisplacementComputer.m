@@ -54,10 +54,9 @@ classdef DisplacementComputer < handle
             s=Solver.create(cParams);
             obj.freeDispl       =   s.solve();
 
-            vL=obj.boundaryCond.freeDOFs;
-            vR=obj.boundaryCond.fixedDOFs;         
-            obj.displacements(vL,1)=obj.freeDispl;
-            obj.displacements(vR,1)=obj.boundaryCond.fixedDispl;
+            c.boundaryCond = obj.boundaryCond;       
+            c.freeDispl = obj.freeDispl;
+            obj.displacements = DOFManager.joinDisplacementVector(c);
         end
 
     end

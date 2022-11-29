@@ -1,8 +1,10 @@
 classdef StructuralComputer < handle
 
     properties (Access = public)
-       displacements
        stress
+    end
+    properties (Access = private)
+       displacements
        globalK
        exteriorForces
        initialData
@@ -10,8 +12,6 @@ classdef StructuralComputer < handle
        solverType
        DOFsConnectivity
        boundaryCond
-    end
-    properties (Access = private)
         strain
         reactions
         scale
@@ -23,6 +23,7 @@ classdef StructuralComputer < handle
         end
 
         function globalComputer(obj)
+            obj.computeDOFsConnectivity();
             obj.computeStiffnessMatrix();
             obj.computeForceVector();
             obj.computeDisplacements();
@@ -39,6 +40,15 @@ classdef StructuralComputer < handle
             obj.solverType  =   cParams.type;
             obj.scale       =   cParams.scale;
         end
+
+        function computeDOFsConnectivity(obj)
+            c.nDim = obj.dimensions.numDimensions;
+            c.nElem = obj.dimensions.numElements;
+            c.nDOFsElem = obj.dimensions.numDOFsElement;
+            c.nodalConnectivity = obj.initialData.nodalConnectivity;
+            s = DOFsConnectivityComputer(c);
+            obj.DOFsConnectivity = s.DOFsConnectivity;
+        end
             
         function computeStiffnessMatrix(obj)
             c.initialData        =   obj.initialData; % Es necessita tot
@@ -46,7 +56,6 @@ classdef StructuralComputer < handle
             d                    =   DOFManager(c);
             d.compute();
             obj.boundaryCond     =   d.boundaryCond;
-            obj.DOFsConnectivity =   d.DOFsConnectivity;
             c.DOFsConnectivity   =   obj.DOFsConnectivity;
             k                    =   GlobalStiffnessMatrixComputer(c);
             k.compute();
@@ -70,7 +79,7 @@ classdef StructuralComputer < handle
             d               =   DisplacementComputer(c);
             d.compute();
             obj.boundaryCond.freeDispl = d.freeDispl;
-            obj.displacements = d.displacements;
+            obj.displacements = d.displacements.displ;
         end
 
         function computeReactions(obj)
@@ -97,12 +106,12 @@ classdef StructuralComputer < handle
         end
 
         function plotDeformedStructure(obj)
-            cParams.dimensions  =   obj.dimensions;
-            cParams.data        =   obj.initialData;
-            cParams.stress      =   obj.stress;
-            cParams.displ       =   obj.displacements;
-            cParams.scale       =   obj.scale;
-            p = PlotStress3D(cParams);
+            c.dimensions  =   obj.dimensions;
+            c.data        =   obj.initialData;
+            c.stress      =   obj.stress;
+            c.displ       =   obj.displacements;
+            c.scale       =   obj.scale;
+            p = PlotStress3D(c);
             p.plot();
         end
     end

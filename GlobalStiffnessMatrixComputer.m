@@ -48,7 +48,7 @@ classdef GlobalStiffnessMatrixComputer < handle
                 youngModulus = materialProp(materialConnect(e),1);
                 Area = materialProp(materialConnect(e),2);
 
-                Kelprima =youngModulus*Area/(le)*[1 -1; -1 1];
+                Kelprima = youngModulus*Area/(le)*[1 -1; -1 1];
                 Kelem(:,:,e) = Re.'*Kelprima*Re;
             end
             obj.elementalK=Kelem;
