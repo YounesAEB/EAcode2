@@ -1,5 +1,10 @@
 classdef Solver < handle
-
+    
+    properties (Access = protected)
+        A
+        b
+    end
+    
     %Solving Ax=b equations
     methods (Access=public, Static)
         function obj = create(cParams)

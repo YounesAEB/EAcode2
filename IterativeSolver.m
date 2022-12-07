@@ -1,10 +1,4 @@
 classdef IterativeSolver < Solver
-    
-   
-    properties (Access = private)
-        A
-        b
-    end
 
     methods (Access = public)
         function obj=IterativeSolver(cParams)

@@ -1,10 +1,5 @@
 classdef DirectSolver < Solver
 
-    properties (Access = private)
-        A
-        b
-    end
-
     methods (Access = public)
         function obj=DirectSolver(cParams)
             obj.A = cParams.A;
