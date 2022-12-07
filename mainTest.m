@@ -7,7 +7,8 @@ clear;
 close all;
 
 %% INPUT DATA
-cParams = load('exactSolution.mat');
+load('testData.mat');
+cParams = testData;
 
 %% MAIN
 t = TestClass(cParams);

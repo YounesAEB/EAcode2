@@ -1,4 +1,4 @@
-classdef GlobalForceVectorAssembly < handle
+classdef GlobalForceVectorComputer < handle
 
     properties (Access=public)
         Fext
@@ -11,7 +11,7 @@ classdef GlobalForceVectorAssembly < handle
     end
 
     methods (Access=public)
-        function obj = GlobalForceVectorAssembly(cParams)
+        function obj = GlobalForceVectorComputer(cParams)
             obj.init(cParams);
         end
         function compute(obj)

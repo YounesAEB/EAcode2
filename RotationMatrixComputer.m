@@ -8,7 +8,7 @@ classdef RotationMatrixComputer < handle
         nodalConnectivity
         nodalCoordinates
         iElem
-        P
+        Point
     end
 
     methods (Access = public)
@@ -34,22 +34,22 @@ classdef RotationMatrixComputer < handle
             Tnod=obj.nodalConnectivity;
             e=obj.iElem;
 
-            obj.P.x1e=x(Tnod(e,1),1);         
-            obj.P.y1e=x(Tnod(e,1),2);             
-            obj.P.z1e=x(Tnod(e,1),3);
-            obj.P.x2e=x(Tnod(e,2),1);
-            obj.P.y2e=x(Tnod(e,2),2);
-            obj.P.z2e=x(Tnod(e,2),3);
+            obj.Point.x1e=x(Tnod(e,1),1);         
+            obj.Point.y1e=x(Tnod(e,1),2);             
+            obj.Point.z1e=x(Tnod(e,1),3);
+            obj.Point.x2e=x(Tnod(e,2),1);
+            obj.Point.y2e=x(Tnod(e,2),2);
+            obj.Point.z2e=x(Tnod(e,2),3);
         end
 
         function computeLengths(obj) 
             %x1=obj.P.x1e; obj.P.x potser és massa llarg, millor faig aixo?
-            obj.elemLength=sqrt((obj.P.x2e-obj.P.x1e)^2+(obj.P.y2e-obj.P.y1e)^2+(obj.P.z2e-obj.P.z1e)^2);  
+            obj.elemLength=sqrt((obj.Point.x2e-obj.Point.x1e)^2+(obj.Point.y2e-obj.Point.y1e)^2+(obj.Point.z2e-obj.Point.z1e)^2);  
         end
 
         function computeRotationMatrix(obj)
-            obj.rotationMatrix = 1/obj.elemLength*[obj.P.x2e-obj.P.x1e obj.P.y2e-obj.P.y1e obj.P.z2e-obj.P.z1e 0 0 0;
-                           0 0 0 obj.P.x2e-obj.P.x1e obj.P.y2e-obj.P.y1e obj.P.z2e-obj.P.z1e];
+            obj.rotationMatrix = 1/obj.elemLength*[obj.Point.x2e-obj.Point.x1e obj.Point.y2e-obj.Point.y1e obj.Point.z2e-obj.Point.z1e 0 0 0;
+                           0 0 0 obj.Point.x2e-obj.Point.x1e obj.Point.y2e-obj.Point.y1e obj.Point.z2e-obj.Point.z1e];
         end
     end
 end

@@ -13,7 +13,7 @@ classdef GlobalStiffnessMatrixComputer < handle
         rotationMatrix
     end
 
-    methods (Access=public)
+    methods (Access = public)
         function obj = GlobalStiffnessMatrixComputer(cParams)  
             obj.init(cParams);
         end
@@ -24,7 +24,7 @@ classdef GlobalStiffnessMatrixComputer < handle
         end
     end
 
-    methods (Access=private)
+    methods (Access = private)
         function init(obj,cParams)
             obj.dimensions  =   cParams.dimensions;
             obj.initialData =   cParams.initialData;

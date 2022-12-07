@@ -11,9 +11,9 @@ classdef DimensionsComputer < handle
     end
     
     methods (Access = public, Static) 
-        function obj = computeDimensions(data)
-            x       =   data.nodalCoordinates;
-            Tnod    =   data.nodalConnectivity;
+        function obj = computeDimensions(cParams)
+            x       =   cParams.nodalCoordinates;
+            Tnod    =   cParams.nodalConnectivity;
             
             obj.numDimensions   =   size(x,2);
             obj.numDOFsNode     =   obj.numDimensions;

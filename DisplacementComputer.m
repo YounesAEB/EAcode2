@@ -51,7 +51,7 @@ classdef DisplacementComputer < handle
             cParams.A           =   KLL;
             cParams.b           =   FL-KLR*uR;
             cParams.solverType  =   obj.solverType;
-            s=Solver.create(cParams);
+            s = Solver.create(cParams);
             obj.freeDispl       =   s.solve();
 
             c.boundaryCond = obj.boundaryCond;       

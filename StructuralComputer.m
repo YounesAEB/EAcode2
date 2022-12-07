@@ -1,17 +1,17 @@
 classdef StructuralComputer < handle
 
     properties (Access = public)
-       stress
+        stress
     end
     properties (Access = private)
-       displacements
-       globalK
-       exteriorForces
-       initialData
-       dimensions
-       solverType
-       DOFsConnectivity
-       boundaryCond
+        displacements
+        globalK
+        exteriorForces
+        initialData
+        dimensions
+        solverType
+        DOFsConnectivity
+        boundaryCond
         strain
         reactions
         scale
@@ -66,7 +66,7 @@ classdef StructuralComputer < handle
             c.forcesData    =  obj.initialData.forcesData;
             c.numDOFsTotal  =  obj.dimensions.numDOFsTotal;
             c.numDimensions =  obj.dimensions.numDimensions;
-            f               =  GlobalForceVectorAssembly(c);
+            f               =  GlobalForceVectorComputer(c);
             f.compute();
             obj.exteriorForces =  f.Fext;
         end

@@ -19,8 +19,8 @@ classdef SolutionComparator < handle
     end
     methods (Access = private)
         function  init(obj,cParams)
-            obj.A=cParams.A;  
-            obj.B=cParams.B;
+            obj.A = cParams.A;  
+            obj.B = cParams.B;
         end
 
         function compare(obj)

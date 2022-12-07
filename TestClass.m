@@ -20,7 +20,7 @@ classdef TestClass < handle
 
     methods (Access = private)
         function init(obj,cParams)
-            obj.exactSolution=cParams.c;
+            obj.exactSolution=cParams;
         end
 
         function checkGlobalStiffnessMatrix(obj)
@@ -34,7 +34,7 @@ classdef TestClass < handle
             c = SolutionComparator(cParams);
             c.check();
             d.comparatorBool = c.comparatorBool;
-            d.testName= 'Global Stiffness Matrix';
+            d.testName = 'Global Stiffness Matrix';
             rd = TestDisplayer(d);
             rd.displayR();
         end
@@ -43,10 +43,10 @@ classdef TestClass < handle
             c.forcesData    =  obj.exactSolution.initialData.forcesData;
             c.numDOFsTotal   =  obj.exactSolution.dimensions.numDOFsTotal;
             c.numDimensions  =  obj.exactSolution.dimensions.numDimensions;
-            f               =  GlobalForceVectorAssembly(c);
+            f               =  GlobalForceVectorComputer(c);
             f.compute();
-            cParams.A= obj.exactSolution.exteriorForces;
-            cParams.B   =  f.Fext;
+            cParams.A   =   obj.exactSolution.exteriorForces;
+            cParams.B   =   f.Fext;
             c = SolutionComparator(cParams);
             c.check();
             d.comparatorBool = c.comparatorBool;
@@ -62,7 +62,7 @@ classdef TestClass < handle
             c.exteriorForces  =   obj.exactSolution.exteriorForces;
             d = DisplacementComputer(c);
             d.compute();
-            cParams.A   =   d.displacements;
+            cParams.A   =   d.displacements.displ;
             cParams.B   =   obj.exactSolution.displacements;
             c = SolutionComparator(cParams);
             c.check();

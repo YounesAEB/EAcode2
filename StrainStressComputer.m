@@ -22,11 +22,11 @@ classdef StrainStressComputer < handle
             obj.init(cParams);
         end
         function compute(obj)
-            obj.computeSS();
+            obj.computeStrainStress();
         end
     end
 
-    methods (Access=private)
+    methods (Access = private)
         function init(obj, cParams)
             obj.materialProperties  =   cParams.materialProperties;
             obj.materialConnectivity =  cParams.materialConnectivity;
@@ -37,7 +37,7 @@ classdef StrainStressComputer < handle
             obj.displ               =   cParams.displ;
         end
 
-        function obj = computeSS(obj)      
+        function obj = computeStrainStress(obj)      
             nElem               =   obj.dimensions.numElements;
             mat                 =   obj.materialProperties;
             Tmat                =   obj.materialConnectivity;
@@ -51,8 +51,8 @@ classdef StrainStressComputer < handle
                 obj.computeRotationMatrix(iElem);
                 globalCoordDispl = obj.computeGlobalCoordDisplacements(iElem);
 
-                le=obj.elemLength;
-                Re=obj.rotationMatrix;
+                le = obj.elemLength;
+                Re = obj.rotationMatrix;
             
                 localCoordDispl      =   Re*globalCoordDispl; 
                 deformationElem =   (1/le)*[-1 1]*localCoordDispl; 

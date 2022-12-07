@@ -2,7 +2,6 @@ classdef DOFManager < handle
 
     properties (Access = public)
         boundaryCond
-        displacements
     end
     properties (Access = private)
         dimensions
@@ -54,10 +53,10 @@ classdef DOFManager < handle
         end
 
         function applyCondFree(obj)
-            n_dof=obj.dimensions.numDOFsTotal;
-            v=linspace(1,n_dof,n_dof);
-            vL=setdiff(v,obj.boundaryCond.fixedDOFs);
-            obj.boundaryCond.freeDOFs=vL;
+            n_dof   =   obj.dimensions.numDOFsTotal;
+            v       =   linspace(1,n_dof,n_dof);
+            vL      =   setdiff(v,obj.boundaryCond.fixedDOFs);
+            obj.boundaryCond.freeDOFs = vL;
         end
 
     end

@@ -10,11 +10,10 @@ classdef Preprocess < handle
     end
 
     properties (Access = private)
-        F
+        forceValue
         area
-        young
+        youngModul
         inertia
-        type
     end
 
     methods (Access=public)
@@ -24,7 +23,7 @@ classdef Preprocess < handle
 
         function setInitialData(obj)
             obj.setNodalCoord();
-            obj.setNodalConnectiviy();
+            obj.setNodalConnectivity();
             obj.setFixedNodes();
             obj.setForcesMatrix();
             obj.setMaterialProperties();
@@ -34,9 +33,9 @@ classdef Preprocess < handle
 
     methods (Access = private)
         function init(obj,cParams)
-            obj.F       =   cParams.F;
+            obj.forceValue       =   cParams.F;
             obj.area    =   cParams.Area;
-            obj.young   =   cParams.Young;
+            obj.youngModul   =   cParams.Young;
             obj.inertia =   cParams.Inertia;
         end
 
@@ -44,7 +43,7 @@ classdef Preprocess < handle
             obj.nodalCoordinates=[0 0 0; 0 1 0;0 1 1; 0 0 1; 1 1/2 1/2];
         end
 
-        function setNodalConnectiviy(obj)
+        function setNodalConnectivity(obj)
             obj.nodalConnectivity = [1 5; 2 5; 3 5; 4 5];
         end
 
@@ -53,11 +52,11 @@ classdef Preprocess < handle
         end
 
         function setForcesMatrix(obj)
-            obj.forcesData= [5 3 -obj.F];
+            obj.forcesData= [5 3 -obj.forceValue];
         end
 
         function setMaterialProperties(obj)
-            obj.materialProperties=[obj.young obj.area obj.inertia];
+            obj.materialProperties=[obj.youngModul obj.area obj.inertia];
         end
 
         function setMaterialConnectivity(obj)
